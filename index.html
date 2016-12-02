@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  	<title>Insper Chat</title>
+  </head>
+  <style type="text/css">
+	#header{
+		height: 50px;
+	}	  
+  	#chat{
+  		height: 500px;
+  	}
+  	#divChat{
+  		float: left;
+  		border: 1px #000 solid;
+  	}
+  	#divAll{
+  		display: none;
+  	}
+  	
+  </style>
+  <body>
+  	<div  id="login">
+  		<p>Coloque seu Nome aqui</p>
+  		<form id="setNome">
+  			<input id="nome"></input>
+  			<input type="submit"></input>
+  		</form>
+  	</div>
+	<div  id="divAll" >
+		<div id="divChat" >
+  			<div id="header">
+  				
+  			</div>
+  			<div id="chat"></div>
+  			<form id= "send-message">
+	  			<input type="text" id="message" ></input>
+	  			<input type="submit"></input>
+  			</form>
+		</div>
+		<div id="usuarios"></div>
+	</div>
+  	
+
+
+
+
+  </body>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script>
+  	jQuery(function($){
+  		var $nameForm = $('#setNome');
+  		var $nameBox = $('#nome')
+  		var socket = io();
+  		var $usuarios = $('#usuarios')
+  		var $head =$('#header')
+  		var $messageForm = $('#send-message');
+  		var $messageBox = $('#message');
+  		var $chat = $('#chat');
+
+  		$nameForm.submit(function(e){
+  			e.preventDefault();
+  			socket.emit('new user', $nameBox.val());
+  			$('#login').hide();
+  			$('#divAll').show();
+  			
+  			$nameBox.val('');
+
+  		});
+
+  		$messageForm.submit(function(e){
+  			e.preventDefault();
+  			socket.emit('send message', $messageBox.val());
+  			$messageBox.val('');
+  		});
+
+  		socket.on('usernames', function(data){
+  			var list = '';
+  			for (i=0;i < data.length; i++){
+  				list += data[i] + "<br/>"
+  			}
+  			$usuarios.html(list);
+  		});
+
+  		socket.on('header',function(data){
+  			$head.append("Bem Vindo" );
+  		});
+
+  		socket.on('new message', function(data){
+  			$chat.append(data.usr + ":" + data.msg + "<br/>");
+  		});
+
+  	});
+  </script>
+</html>
